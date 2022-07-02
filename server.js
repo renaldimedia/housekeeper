@@ -1,5 +1,5 @@
-import createServer from "./createServer.js"
-// import express from "express"
+// import createServer from "./createServer.js"
+import express from "express"
 import { Client, Intents } from "discord.js"
 import cfg from "./config.js"
 
