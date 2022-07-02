@@ -26,16 +26,7 @@ async function getMember(bot, res) {
     let result = {data: []};
     // result['data'] = [];
     members.each((member) => {
-      // bot.users.fetch(member.user.id)
-      //   .then(mb => {
-      //     // member.roles.cache is a collection of roles the member has
-      //     console.log(mb)
-
-      //     if (mb.roles.cache.has('ROLE ID'))
-      //       console.log('member has the role')
-      //   })
-      //   .catch(console.error);
-      console.log(member)
+      
       result.data.push(member);
       // res.send(`${member.user.username} says hello`)
     })
@@ -46,61 +37,82 @@ async function getMember(bot, res) {
   res.send('exit')
 }
 
-async function sendToRole(cl, role) {
-  const list = cl.guilds.cache.get(cfg.discord.serverKey)
-  const members = await list.members.fetch();
-  allRoles(cl).then(rs => {
-    var item = rs.filter(item=>item.name.toLowerCase().includes(role));
-    // console.log(item.keys().get(0))
-    const [roleid] = item.keys()
-    // console.log(roleid)
-    members.each((member) => {
-      let ada = member.roles.cache.get(roleid);
-      if(typeof ada !== 'undefined'){
-        client.users.cache.get(member.user.id).send('Notif ini ada karena anda di set sebagai role: ' + role + " oleh Admin server renaldimedia")
-      }
-    })
-    })
+async function sendToRole(cl, role, res, msg = '') {
+  try {
+    // console.log('will send now to role : ' + cfg.discord.serverKey)
+    const list = cl.guilds.cache.get(cfg.discord.serverKey)
+    // console.log('list ok')
+    const members = await list.members.fetch();
+    // console.log('members ok')
+    allRoles(cl).then(rs => {
+      var item = rs.filter(item=>item.name.toLowerCase().includes(role));
+      // console.log(item.keys())
+      const [roleid] = item.keys()
+      // console.log(roleid)
+      members.each((member) => {
+        let ada = member.roles.cache.get(roleid);
+        if(typeof ada !== 'undefined'){
+          // console.log('sending now!')
+          client.users.cache.get(member.user.id).send(msg)
+          res.send({message: 'Notifikasi terkirim!', error: 0})
+          return
+        }
+      })
+      }).catch(error => {
+        res.json({message: 'Notifikasi gagal!', error: 1, data: error})
+        return
+      })
+      
+  } catch (error) {
+    res.send(error)
+  }
  
 }
 
 const createServer = cl => {
   const app = express()
   app.use(express.json())
+  app.use((req, res, next) => {
+    // console.log(req.headers))
+    if(req.headers.apikey == '' || cfg.server.apiKeyList.indexOf(req.headers.apikey) == -1){
+      res.send({message: 'sorry!'});
+      return;
+    }
+    next()
+  })
 
   app.get("/", (_, res) => {
-    sendToRole(cl, 'payment')
-    // if(typeof cl )
-    // getMember(cl, res)
-    // allRoles(cl).then(rs => {
-    //   // console.log(rs);
-
-    //   var item = rs.filter(item=>item.name.toLowerCase().includes('hrd'));
-    //   console.log(item)
-    //   // let x = []
-    //   // rs.each(sm => {
-    //   //   x.push({
-    //   //     name: sm.name,
-    //   //     id: sm.id
-    //   //   })
-    //   // });
-    //   // console.log(x)
-    // })
+    sendToRole(cl, 'payment', res)
   });
 
   app.post("/payment/midtrans", (req, res) => {
-    console.log(req.body);
+    // console.log(req.body);
     var payment = req.body;
     var messages = "Payment";
-    if (payment.status == 'ok') {
-      messages = `Payment Invoice ${payment.invoice} sudah lunas!`
-    } else if (payment.status == 'pending') {
-      messages = `Ada pesanan masuk dengan invoice ${payment.invoice}, segera followup!`
+    if (payment.transaction_status == 'settlement') {
+      messages = `Payment Invoice ${payment.order_id} sudah lunas pada ${payment.transaction_time}!`
+    } else if (payment.transaction_status == 'pending') {
+      messages = `Ada pesanan masuk dengan invoice ${payment.orderid} oleh ${payment.customer.email}, segera followup!`
     }
-    sendToRole(cl, "PAYMENT")
-    // client.users.cache.get('863729310082400267').send(messages)
+    sendToRole(cl, "payment", res, messages)
+    
     // res.json({ requestBody: membersWithRole });
   });
+
+  app.post("/payment/xendit", (req, res) => {
+    // console.log(req.body);
+    var payment = req.body;
+    var messages = "Payment";
+    if (payment.transaction_status == 'settlement') {
+      messages = `Payment Invoice ${payment.order_id} sudah lunas pada ${payment.transaction_time}!`
+    } else if (payment.transaction_status == 'pending') {
+      messages = `Ada pesanan masuk dengan invoice ${payment.orderid} oleh ${payment.customer.email}, segera followup!`
+    }
+    sendToRole(cl, "payment", res, messages)
+    
+    // res.json({ requestBody: membersWithRole });
+  });
+
 
   return app
 }
@@ -112,24 +124,6 @@ myIntents.add(Intents.FLAGS.GUILD_PRESENCES, Intents.FLAGS.GUILD_MEMBERS, Intent
 const client = new Client({ intents: myIntents })
 const app = createServer(client)
 
-// function sendFirst(cl, channelID = '') {
-//   // let channelID;
-//   let channels = cl.channels.cache;
-//   console.log(channels);
-//   channelLoop:
-//   for (let key in channels) {
-//     let c = channels[key];
-//     console.log(c[1])
-//     if (c[2].type === "GUILD_TEXT") {
-//       channelID = c[0];
-//       break channelLoop;
-//     }
-//   }
-
-//   let channel = guild.channels.cache.get(guild.systemChannelID || channelID);
-//   channel.send(`Hai! saya ${client.user.username}, terimakasih telah invite`);
-// }
-
 
 client.login(cfg.discord.apiKey)
 
@@ -137,7 +131,6 @@ client.once('ready', () => {
   console.log('Ready!');
   // sendFirst(client, '863733017179324440')
   // client.channels.cache.get('863733017179324440').send('Hai! saya bot!');
-
 });
 
 // let membersWithRole = message.guild.members.filter(member => { 
