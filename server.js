@@ -1,6 +1,6 @@
 // import createServer from "./createServer.js"
 import express from "express"
-import { Client, Intents } from "discord.js"
+import { Client, Intents, MessageActionRow, MessageButton  } from "discord.js"
 import cfg from "./config.js"
 
 const allRoles = async function(bot){
@@ -47,7 +47,14 @@ async function sendToRole(cl, role, res, msg = '') {
         let ada = member.roles.cache.get(roleid);
         if(typeof ada !== 'undefined'){
           // console.log('sending now!')
-          client.users.cache.get(member.user.id).send(msg)
+          const row = new MessageActionRow()
+			.addComponents(
+				new MessageButton()
+					.setCustomId('primary')
+					.setLabel('Primary')
+					.setStyle('PRIMARY'),
+			);
+          client.users.cache.get(member.user.id).send({content: msg, components: row})
           res.send({message: 'Notifikasi terkirim!', error: 0})
           return
         }
@@ -85,9 +92,10 @@ const createServer = cl => {
     var messages = "Payment";
     if (payment.transaction_status == 'settlement') {
       messages = `Payment Invoice ${payment.order_id} sudah lunas pada ${payment.transaction_time}!`
-    } else if (payment.transaction_status == 'pending') {
-      messages = `Ada pesanan masuk dengan invoice ${payment.orderid} oleh ${payment.customer.email}, segera followup!`
-    }
+    } 
+    // else if (payment.transaction_status == 'pending') {
+    //   messages = `Ada pesanan masuk dengan invoice ${payment.orderid} oleh ${payment.customer.email}, segera followup!`
+    // }
     sendToRole(cl, "payment", res, messages)
     
     // res.json({ requestBody: membersWithRole });
@@ -112,8 +120,7 @@ const createServer = cl => {
     messages = `Ada pesanan masuk dengan invoice ${payment.invoice_id} oleh ${payment.user_email}, segera followup!`
   
     sendToRole(cl, "payment", res, messages)
-    // console.log(payment);
-    // res.send(req);
+    
   });
 
 
