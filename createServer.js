@@ -36,10 +36,9 @@ const createServer = cl => {
     // console.log(req.body);
     var payment = req.body;
     var messages = "Payment";
-    if (payment.transaction_status.toLowerCase() == 'paid') {
+    messages = `Ada pesanan masuk dengan invoice ${payment.external_id} oleh ${payment.payer_email}, segera followup!`
+    if (payment.status.toLowerCase() == 'paid') {
       messages = `Payment Invoice ${payment.external_id} sudah lunas pada ${payment.paid_at}!`
-    } else if (payment.transaction_status.toLowerCase() == 'pending') {
-      messages = `Ada pesanan masuk dengan invoice ${payment.external_id} oleh ${payment.payer_email}, segera followup!`
     }
     sendToRole(cl, "payment", res, messages)
     
