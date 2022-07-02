@@ -30,7 +30,7 @@ async function sendToRole(cl, role, res, msg = '') {
       })
       
   } catch (error) {
-    res.send(error)
+    res.send("terjadi kesalahan!")
   }
  
 }
