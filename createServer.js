@@ -61,21 +61,21 @@ const createServer = cl => {
       messages = `Ada pesanan masuk dengan invoice ${payment.orderid} oleh ${payment.customer.email}, segera followup!`
     }
     sendToRole(cl, "payment", res, messages)
-    
-    // res.json({ requestBody: membersWithRole });
   });
 
   app.post("/payment/xendit", (req, res) => {
-    // console.log(req.body);
     var payment = req.body;
     var messages = "Payment";
     messages = `Ada pesanan masuk dengan invoice ${payment.external_id} oleh ${payment.payer_email}, segera followup!`
     if (payment.status.toLowerCase() == 'paid') {
-      messages = `Payment Invoice ${payment.external_id} sudah lunas pada ${payment.paid_at}!`
+      messages = `Payment Invoice ${payment.external_id} sudah lunas pada ${payment.paid_at} oleh ${payment.payer_email}!`
     }
     sendToRole(cl, "payment", res, messages)
-    
-    // res.json({ requestBody: membersWithRole });
+  });
+
+  app.post("/payment/manual", (req,res) => {
+    var payment = req.body;
+    res.json(req);
   });
 
 
