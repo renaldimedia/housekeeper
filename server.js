@@ -108,7 +108,12 @@ const createServer = cl => {
 
   app.post("/payment/manual", (req,res) => {
     var payment = req.body;
-    res.send(req);
+    var messages = "Payment";
+    messages = `Ada pesanan masuk dengan invoice ${payment.invoice_id} oleh ${payment.user_email}, segera followup!`
+  
+    sendToRole(cl, "payment", res, messages)
+    // console.log(payment);
+    // res.send(req);
   });
 
 
