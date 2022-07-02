@@ -1,6 +1,39 @@
 import express from "express"
 import cfg from "./config.js"
 
+// import { Client, Intents } from "discord.js"
+
+async function sendToRole(cl, role, res, msg = '') {
+  try {
+    // console.log('will send now to role : ' + cfg.discord.serverKey)
+    const list = cl.guilds.cache.get(cfg.discord.serverKey)
+    // console.log('list ok')
+    const members = await list.members.fetch();
+    // console.log('members ok')
+    allRoles(cl).then(rs => {
+      var item = rs.filter(item=>item.name.toLowerCase().includes(role));
+      // console.log(item.keys())
+      const [roleid] = item.keys()
+      // console.log(roleid)
+      members.each((member) => {
+        let ada = member.roles.cache.get(roleid);
+        if(typeof ada !== 'undefined'){
+          // console.log('sending now!')
+          client.users.cache.get(member.user.id).send(msg)
+          res.send({message: 'Notifikasi terkirim!', error: 0})
+          return
+        }
+      })
+      }).catch(error => {
+        res.json({message: 'Notifikasi gagal!', error: 1, data: error})
+        return
+      })
+      
+  } catch (error) {
+    res.send(error)
+  }
+ 
+}
 
 const createServer = cl => {
   const app = express()
