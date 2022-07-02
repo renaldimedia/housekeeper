@@ -31,7 +31,7 @@ async function getMember(bot, res) {
 }
 
 
-async function sendToRole(cl, role, res, msg = '') {
+async function sendToRole(cl, role, res, msg = '', cmp = false) {
   try {
     // console.log('will send now to role : ' + cfg.discord.serverKey)
     const list = cl.guilds.cache.get(cfg.discord.serverKey)
@@ -47,14 +47,11 @@ async function sendToRole(cl, role, res, msg = '') {
         let ada = member.roles.cache.get(roleid);
         if(typeof ada !== 'undefined'){
           // console.log('sending now!')
-          const row = new MessageActionRow()
-			.addComponents(
-				new MessageButton()
-					.setCustomId('primary')
-					.setLabel('Primary')
-					.setStyle('PRIMARY'),
-			);
+          if(cpm){
+            client.users.cache.get(member.user.id).send({content: msg, components: [cmp]})
+          }else{
           client.users.cache.get(member.user.id).send({content: msg, components: [row]})
+          }
           res.send({message: 'Notifikasi terkirim!', error: 0})
           return
         }
@@ -117,9 +114,16 @@ const createServer = cl => {
   app.post("/payment/manual", (req,res) => {
     var payment = req.body;
     var messages = "Payment";
+    const row = new MessageActionRow()
+    .addComponents(
+      new MessageButton()
+        .setCustomId('primary')
+        .setLabel('Primary')
+        .setStyle('PRIMARY'),
+    );
     messages = `Ada pesanan masuk dengan invoice ${payment.invoice_id} oleh ${payment.user_email}, segera followup!`
   
-    sendToRole(cl, "payment", res, messages)
+    sendToRole(cl, "payment", res, messages, row)
     
   });
 
@@ -133,6 +137,10 @@ myIntents.add(Intents.FLAGS.GUILD_PRESENCES, Intents.FLAGS.GUILD_MEMBERS, Intent
 
 
 const client = new Client({ intents: myIntents })
+client.on('interactionCreate', interaction => {
+	if (!interaction.isButton()) return;
+	console.log(interaction);
+});
 const app = createServer(client)
 
 
