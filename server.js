@@ -1,9 +1,10 @@
 // import createServer from "./createServer.js"
 import express from "express"
-import { Client, Intents, MessageActionRow, MessageButton  } from "discord.js"
+import { Client, Intents, MessageActionRow, MessageButton } from "discord.js"
+import axios from 'axios';
 import cfg from "./config.js"
 
-const allRoles = async function(bot){
+const allRoles = async function (bot) {
   const list = bot.guilds.cache.get(cfg.discord.serverKey)
   let roles = await list.roles.fetch();
 
@@ -11,14 +12,14 @@ const allRoles = async function(bot){
 }
 
 async function getMember(bot, res) {
-  
+
   const list = bot.guilds.cache.get(cfg.discord.serverKey)
-  
+
   if (typeof list !== 'undefined') {
-   
+
     const members = await list.members.fetch()
-    
-    let result = {data: []};
+
+    let result = { data: [] };
 
     members.each((member) => {
       result.data.push(member);
@@ -31,40 +32,51 @@ async function getMember(bot, res) {
 }
 
 
-async function sendToRole(cl, role, res, msg = '', cmp = false) {
+async function sendToRole(cl, role, res, msg = '', additional = false) {
+  // console.log(additional)
   try {
     // console.log('will send now to role : ' + cfg.discord.serverKey)
     const list = cl.guilds.cache.get(cfg.discord.serverKey)
     // console.log('list ok')
     const members = await list.members.fetch();
-    // console.log('members ok')
+    // var cmp = [];
+    console.log('members ok')
     allRoles(cl).then(rs => {
-      var item = rs.filter(item=>item.name.toLowerCase().includes(role));
+      var item = rs.filter(item => item.name.toLowerCase().includes(role));
       // console.log(item.keys())
       const [roleid] = item.keys()
-      // console.log(roleid)
+      console.log(roleid)
       members.each((member) => {
         let ada = member.roles.cache.get(roleid);
-        if(typeof ada !== 'undefined'){
-          // console.log('sending now!')
-          if(cpm){
-            client.users.cache.get(member.user.id).send({content: msg, components: [cmp]})
-          }else{
-          client.users.cache.get(member.user.id).send({content: msg, components: [row]})
+        if (typeof ada !== 'undefined') {
+          console.log('sending now!')
+          if (additional && additional.button == true) {
+            const row = new MessageActionRow()
+              .addComponents(
+                new MessageButton()
+                  .setCustomId(additional.customid)
+                  .setLabel(additional.btnlabel)
+                  .setStyle(additional.style),
+              );
+            // cmp.push(row)
+            client.users.cache.get(member.user.id).send({ content: msg, components: [row] })
+            console.log(msg)
+          } else {
+            client.users.cache.get(member.user.id).send({ content: msg })
+            console.log(msg)
           }
-          res.send({message: 'Notifikasi terkirim!', error: 0})
-          return
         }
       })
-      }).catch(error => {
-        res.json({message: 'Notifikasi gagal!', error: 1, data: error})
-        return
-      })
-      
+      console.log('berhasil loop member')
+      res.json({ message: 'Notifikasi berhasil!', error: 0, data: [] })
+    }).catch(error => {
+      console.log(error)
+    })
   } catch (error) {
-    res.send("terjadi kesalahan!")
+    res.json({ msg: "terjadi kesalahan!", er: error })
   }
- 
+
+  return
 }
 
 const createServer = cl => {
@@ -72,8 +84,8 @@ const createServer = cl => {
   app.use(express.json())
   app.use((req, res, next) => {
     // console.log(req.headers))
-    if(req.headers.apikey == '' || cfg.server.apiKeyList.indexOf(req.headers.apikey) == -1){
-      res.send({message: 'sorry!'});
+    if (req.headers.apikey == '' || cfg.server.apiKeyList.indexOf(req.headers.apikey) == -1) {
+      res.send({ message: 'sorry!' });
       return;
     }
     next()
@@ -89,12 +101,12 @@ const createServer = cl => {
     var messages = "Payment";
     if (payment.transaction_status == 'settlement') {
       messages = `Payment Invoice ${payment.order_id} sudah lunas pada ${payment.transaction_time}!`
-    } 
+    }
     // else if (payment.transaction_status == 'pending') {
     //   messages = `Ada pesanan masuk dengan invoice ${payment.orderid} oleh ${payment.customer.email}, segera followup!`
     // }
     sendToRole(cl, "payment", res, messages)
-    
+
     // res.json({ requestBody: membersWithRole });
   });
 
@@ -107,24 +119,23 @@ const createServer = cl => {
       messages = `Payment Invoice ${payment.external_id} sudah lunas pada ${payment.paid_at}!`
     }
     sendToRole(cl, "payment", res, messages)
-    
+
     // res.json({ requestBody: membersWithRole });
   });
 
-  app.post("/payment/manual", (req,res) => {
+  app.post("/payment/manual", (req, res) => {
     var payment = req.body;
     var messages = "Payment";
-    const row = new MessageActionRow()
-    .addComponents(
-      new MessageButton()
-        .setCustomId('primary')
-        .setLabel('Primary')
-        .setStyle('PRIMARY'),
-    );
+    let additional = {
+      button: true,
+      style: 'PRIMARY',
+      customid: 'activatepayment-' + payment.invoice_id + "-" + payment.item_id,
+      btnlabel: "Aktivasi paket"
+    }
     messages = `Ada pesanan masuk dengan invoice ${payment.invoice_id} oleh ${payment.user_email}, segera followup!`
-  
-    sendToRole(cl, "payment", res, messages, row)
-    
+
+    sendToRole(cl, "payment", res, messages, additional)
+
   });
 
 
@@ -137,9 +148,53 @@ myIntents.add(Intents.FLAGS.GUILD_PRESENCES, Intents.FLAGS.GUILD_MEMBERS, Intent
 
 
 const client = new Client({ intents: myIntents })
+
+async function goto(method, url, data) {
+  // const users = 
+  const result = await cfg.web.request.post(url, data, {
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  });
+
+  return result
+}
+
 client.on('interactionCreate', interaction => {
-	if (!interaction.isButton()) return;
-	console.log(interaction);
+  if (!interaction.isButton()) return;
+  let ids = interaction.customId.split("-");
+
+  if (ids[0] == 'activatepayment') {
+    const data = {
+      item_id: ids[2],
+      invoice_id: ids[1]
+    }
+    goto('POST', "/wp-json/houzez/v1/payment/activate", data).then(result => {
+      console.log(result)
+      console.log(result.data)
+      console.log(result.data.message)
+      if (typeof result.data != 'undefined' && typeof result.data.message == 'string' && result.data.message == 'success') {
+        let payload = {
+          content: 'Berhasil mengaktifkan paket!'
+        }
+
+        if (result.data.data.phone != '') {
+          const row = new MessageActionRow()
+            .addComponents(
+              new MessageButton()
+                .setLabel('Say Welcome to New Member')
+                .setStyle('LINK').setURL('https://wa.me/' + result.data.data.phone)
+            );
+
+          payload['components'] = [row]
+        }
+        client.users.cache.get(interaction.user.id).send(payload)
+      }
+    })
+
+  }
+
+  return true;
 });
 const app = createServer(client)
 
