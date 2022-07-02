@@ -6,7 +6,8 @@ const cfg = {
         serverKey : process.env.DISCORD_SERVER_KEY
     },
     server :{
-        apiKeyList: allowedKey.split('|')
+        apiKeyList: allowedKey.split('|'),
+        port: process.env.THIS_PORT ? process.env.THIS_PORT : 3000 
     }
 }
 
