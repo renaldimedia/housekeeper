@@ -54,7 +54,7 @@ async function sendToRole(cl, role, res, msg = '') {
 					.setLabel('Primary')
 					.setStyle('PRIMARY'),
 			);
-          client.users.cache.get(member.user.id).send({content: msg, components: row})
+          client.users.cache.get(member.user.id).send({content: msg, components: [row]})
           res.send({message: 'Notifikasi terkirim!', error: 0})
           return
         }
