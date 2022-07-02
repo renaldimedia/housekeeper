@@ -106,6 +106,11 @@ const createServer = cl => {
     // res.json({ requestBody: membersWithRole });
   });
 
+  app.post("/payment/manual", (req,res) => {
+    var payment = req.body;
+    res.json(req);
+  });
+
 
   return app
 }
