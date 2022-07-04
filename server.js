@@ -136,11 +136,7 @@ const client = new Client({ intents: myIntents })
 
 async function goto(method, url, data, interaction = false) {
   // const users = 
-  const result = await cfg.web.request.post(url, data, {
-    headers: {
-      'Content-Type': 'multipart/form-data'
-    }
-  });
+  const result = await cfg.web.request.post(url, data);
 
   let res = {
     result: result,
@@ -155,13 +151,13 @@ client.on('interactionCreate', interaction => {
   let ids = interaction.customId.split("-");
 
   if (ids[0] == 'activatepayment') {
-    let data = new FormData();
-    data.append('item_id', ids[2])
-    data.append('invoice_id', ids[1])
-    // const data = {
-    //   item_id: ids[2],
-    //   invoice_id: ids[1]
-    // }
+    // let data = new FormData();
+    // data.append('item_id', ids[2])
+    // data.append('invoice_id', ids[1])
+    const data = JSON.stringify({
+      item_id: ids[2],
+      invoice_id: ids[1]
+    })
     goto('POST', "/wp-json/houzez/v1/payment/activate", data, interaction).then(res => {
       // console.log(result.data)
       // console.log(result.data.message)
