@@ -6,7 +6,7 @@ import { encode, decode } from 'js-base64';
 const allowedKey = process.env.THIS_API_KEY
 const formPassword = function(pass){
     if(process.env.SYSTEM_IS_PRODUCTION == 1){
-        let px = pass.replace("|", " ");
+        let px = pass.replaceAll("|", " ");
         return px;
     }
 
