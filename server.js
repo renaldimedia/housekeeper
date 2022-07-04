@@ -124,6 +124,10 @@ const createServer = cl => {
     sendToRole(cl, "payment", res, messages, additional)
   });
 
+  app.post("/payment/report", (req, res) => {
+    sendToRole(cl, 'dev', res, "Boooo");
+  });
+
   return app
 }
 
