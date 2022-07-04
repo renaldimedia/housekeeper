@@ -159,8 +159,7 @@ client.on('interactionCreate', interaction => {
       invoice_id: ids[1]
     })
     goto('POST', "/wp-json/houzez/v1/payment/activate", data).then(res => {
-      // console.log(result.data)
-      // console.log(result.data.message)
+      interaction.deferReply()
       let result = res.result
       // let intr = res.interaction
       console.log(result.data)
