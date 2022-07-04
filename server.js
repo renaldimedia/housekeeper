@@ -51,7 +51,7 @@ async function sendToRole(cl, role, res, msg = '', additional = false) {
         let ada = member.roles.cache.get(roleid);
         if (typeof ada !== 'undefined') {
           console.log('sending now!')
-          if (additional && additional.button == true && ) {
+          if (additional && additional.button == true && cfg.interaction.activatePackage == 1) {
             const row = new MessageActionRow()
               .addComponents(
                 new MessageButton()
