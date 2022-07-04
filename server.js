@@ -1,7 +1,6 @@
 // import createServer from "./createServer.js"
 import express from "express"
 import { Client, Intents, MessageActionRow, MessageButton, MessageEmbed } from "discord.js"
-import { default as FormData } from "form-data"
 import cfg from "./config.js"
 
 
@@ -133,6 +132,8 @@ const createServer = cl => {
       .setFooter({ text: 'Some footer text here', iconURL: 'https://i.imgur.com/AfFp7pu.png' });
 
     sendToRole(cl, 'dev', res, {content:"Boo", embeds: [exampleEmbed]});
+
+    return;
   });
 
   return app
