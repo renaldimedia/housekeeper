@@ -168,7 +168,6 @@ client.on('interactionCreate', interaction => {
       invoice_id: ids[1]
     }
     goto('POST', "/wp-json/houzez/v1/payment/activate", data).then(result => {
-      console.log(result)
       // console.log(result.data)
       // console.log(result.data.message)
       if (typeof result.data != 'undefined' && typeof result.data.message == 'string' && result.data.message == 'success') {
@@ -190,6 +189,8 @@ client.on('interactionCreate', interaction => {
         // interaction.deleteReply()
         // client.users.cache.get(interaction.user.id).send(payload)
       }else{
+        console.log(JSON.stringify(result))
+
         let payload = {
           content: 'Gagal mengaktifkan paket!'
         }
