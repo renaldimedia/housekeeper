@@ -12,22 +12,6 @@ const formPassword = function(pass){
 
     return pass;
 }
-const reqProd = axios.create({
-    baseURL: process.env.SYSTEM_URL,
-    timeout: 5000,
-    headers: { 
-        'Authorization': 'Basic ' + encode(process.env.SYSTEM_USERNAME + ":" + process.env.SYSTEM_PASSWORD)
-      }
-  });
-
-const reqDev = axios.create({
-    baseURL: process.env.SYSTEM_URL,
-    timeout: 5000,
-    auth: {
-        username: process.env.SYSTEM_USERNAME,
-        password: formPassword(process.env.SYSTEM_PASSWORD)
-    },
-  })
 const cfg = {
     discord : {
         apiKey : process.env.DISCORD_API_KEY,
@@ -39,7 +23,14 @@ const cfg = {
     },
     web:{
         baseUrl: process.env.SYSTEM_URL,
-        request: process.env.SYSTEM_IS_PRODUCTION == 1 ? reqProd : reqDev
+        request: axios.create({
+            baseURL: process.env.SYSTEM_URL,
+            timeout: 5000,
+            auth: {
+                username: process.env.SYSTEM_USERNAME,
+                password: formPassword(process.env.SYSTEM_PASSWORD)
+            },
+          })
     }
 }
 
