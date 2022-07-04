@@ -196,12 +196,13 @@ client.on('interactionCreate', interaction => {
         // interaction.deleteReply()
         // client.users.cache.get(interaction.user.id).send(payload)
       }else{
-        console.log(JSON.stringify(result))
+        
 
         let payload = {
           content: 'Gagal mengaktifkan paket!'
         }
         intr.reply(payload)
+        console.log(JSON.stringify(res.result))
       }
     })
 
