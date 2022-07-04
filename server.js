@@ -169,16 +169,16 @@ client.on('interactionCreate', interaction => {
           content: 'Berhasil mengaktifkan paket!'
         }
        
-        if (result.data.data.phone != '') {
-          const row = new MessageActionRow()
-            .addComponents(
-              new MessageButton()
-                .setLabel('Say Welcome to New Member')
-                .setStyle('LINK').setURL('https://wa.me/' + result.data.data.phone + "/" + encodeURIComponent("Selamat datang di Halorumah!"))
-            );
+        // if (result.data.data.phone != '') {
+        //   const row = new MessageActionRow()
+        //     .addComponents(
+        //       new MessageButton()
+        //         .setLabel('Say Welcome to New Member')
+        //         .setStyle('LINK').setURL('https://wa.me/' + result.data.data.phone + "/" + encodeURIComponent("Selamat datang di Halorumah!"))
+        //     );
 
-          payload['components'] = [row]
-        }
+        //   payload['components'] = [row]
+        // }
         try {
           interaction.reply(payload)
         } catch (error) {
