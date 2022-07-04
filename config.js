@@ -4,6 +4,14 @@ import { encode, decode } from 'js-base64';
 
 
 const allowedKey = process.env.THIS_API_KEY
+const formPassword = function(pass){
+    if(process.env.SYSTEM_IS_PRODUCTION == 1){
+        let px = pass.replace("|", " ");
+        return px;
+    }
+
+    return pass;
+}
 const cfg = {
     discord : {
         apiKey : process.env.DISCORD_API_KEY,
@@ -20,7 +28,7 @@ const cfg = {
             timeout: 5000,
             auth: {
                 username: process.env.SYSTEM_USERNAME,
-                password: process.env.SYSTEM_PASSWORD
+                password: formPassword(process.env.SYSTEM_PASSWORD)
             },
           })
     }
