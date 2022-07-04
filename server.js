@@ -175,7 +175,7 @@ client.on('interactionCreate', interaction => {
             .addComponents(
               new MessageButton()
                 .setLabel('Say Welcome to New Member')
-                .setStyle('LINK').setURL('https://wa.me/' + result.data.data.phone + "/" + encodeURIComponent("Selamat datang di Halorumah!"))
+                .setStyle('LINK').setURL('https://api.whatsapp.com/send?phone=' + result.data.data.phone + "&text=" + encodeURIComponent("Selamat datang di Halorumah!"))
             );
 
           payload['components'] = [row]
