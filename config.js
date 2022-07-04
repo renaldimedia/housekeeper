@@ -25,12 +25,14 @@ const cfg = {
         baseUrl: process.env.SYSTEM_URL,
         request: axios.create({
             baseURL: process.env.SYSTEM_URL,
-            timeout: 5000,
             auth: {
                 username: process.env.SYSTEM_USERNAME,
                 password: formPassword(process.env.SYSTEM_PASSWORD)
             },
           })
+    },
+    interaction:{
+        activatePackage: process.env.PACKAGE_ACTIVATION
     }
 }
 
