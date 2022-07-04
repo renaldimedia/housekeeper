@@ -115,21 +115,16 @@ const createServer = cl => {
   app.get("/payment/report", (__, res) => {
     const exampleEmbed = new MessageEmbed()
       .setColor('#0099ff')
-      .setTitle('Some title')
-      .setURL('https://discord.js.org/')
-      .setAuthor({ name: 'Some name', iconURL: 'https://i.imgur.com/AfFp7pu.png', url: 'https://discord.js.org' })
-      .setDescription('Some description here')
-      .setThumbnail('https://i.imgur.com/AfFp7pu.png')
+      .setTitle('Laporan Harian')
+      .setAuthor({ name: 'Housekeeper', iconURL: 'https://halorumah.sgp1.digitaloceanspaces.com/wp-content/uploads/2022/07/04175730/1645413478028.jpg', url: 'https://halorumah.id' })
+      .setDescription('Laporan Pembelian Paket Membership')
+      .setThumbnail('https://halorumah.sgp1.digitaloceanspaces.com/wp-content/uploads/2022/07/04175730/1645413478028.jpg')
       .addFields(
-        { name: 'Regular field title', value: 'Some value here' },
-        { name: '\u200B', value: '\u200B' },
-        { name: 'Inline field title', value: 'Some value here', inline: true },
-        { name: 'Inline field title', value: 'Some value here', inline: true },
+        { name: 'Jumlah Invoice Masuk', value: '32', inline: true },
+        { name: 'Jumlah User Register', value: '31', inline: true },
       )
-      .addField('Inline field title', 'Some value here', true)
-      .setImage('https://i.imgur.com/AfFp7pu.png')
       .setTimestamp()
-      .setFooter({ text: 'Some footer text here', iconURL: 'https://i.imgur.com/AfFp7pu.png' });
+      .setFooter({ text: 'End of Report' });
 
     sendToRole(cl, 'dev', res, {content:"Boo", embeds: [exampleEmbed]});
 
