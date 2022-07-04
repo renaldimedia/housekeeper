@@ -152,9 +152,7 @@ const client = new Client({ intents: myIntents })
 async function goto(method, url, data) {
   // const users = 
   const result = await cfg.web.request.post(url, data, {
-    headers: {
-      'Content-Type': 'multipart/form-data'
-    }
+ 
   });
 
   return result
