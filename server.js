@@ -149,13 +149,18 @@ myIntents.add(Intents.FLAGS.GUILD_PRESENCES, Intents.FLAGS.GUILD_MEMBERS, Intent
 
 const client = new Client({ intents: myIntents })
 
-async function goto(method, url, data) {
+async function goto(method, url, data, interaction = false) {
   // const users = 
   const result = await cfg.web.request.post(url, data, {
  
   });
 
-  return result
+  let res = {
+    result: result,
+    interaction: interaction
+  }
+
+  return res
 }
 
 client.on('interactionCreate', interaction => {
@@ -167,9 +172,11 @@ client.on('interactionCreate', interaction => {
       item_id: ids[2],
       invoice_id: ids[1]
     }
-    goto('POST', "/wp-json/houzez/v1/payment/activate", data).then(result => {
+    goto('POST', "/wp-json/houzez/v1/payment/activate", data, interaction).then(res => {
       // console.log(result.data)
       // console.log(result.data.message)
+      let result = res.result
+      let intr = res.interaction
       if (typeof result.data != 'undefined' && typeof result.data.message == 'string' && result.data.message == 'success') {
         let payload = {
           content: 'Berhasil mengaktifkan paket!'
@@ -185,7 +192,7 @@ client.on('interactionCreate', interaction => {
 
           payload['components'] = [row]
         }
-        interaction.reply(payload)
+        intr.reply(payload)
         // interaction.deleteReply()
         // client.users.cache.get(interaction.user.id).send(payload)
       }else{
@@ -194,7 +201,7 @@ client.on('interactionCreate', interaction => {
         let payload = {
           content: 'Gagal mengaktifkan paket!'
         }
-        interaction.reply(payload)
+        intr.reply(payload)
       }
     })
 
