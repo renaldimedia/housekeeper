@@ -158,29 +158,29 @@ client.on('interactionCreate', interaction => {
       item_id: ids[2],
       invoice_id: ids[1]
     })
-    goto('POST', "/wp-json/houzez/v1/payment/activate", data).then(res => {
-      interaction.deferReply()
+    goto('POST', "/wp-json/houzez/v1/payment/activate", data, interaction).then(res => {
+      // interaction.deferReply()
       let result = res.result
-      // let intr = res.interaction
-      console.log(result.data)
-      console.log(interaction)
+      let intr = res.interaction
+      // console.log(result.data)
+      // console.log(interaction)
       if (typeof result.data != 'undefined' && typeof result.data.message == 'string' && result.data.message == 'success') {
         let payload = {
           content: 'Berhasil mengaktifkan paket!'
         }
        
-        // if (result.data.data.phone != '') {
-        //   const row = new MessageActionRow()
-        //     .addComponents(
-        //       new MessageButton()
-        //         .setLabel('Say Welcome to New Member')
-        //         .setStyle('LINK').setURL('https://wa.me/' + result.data.data.phone + "/" + encodeURIComponent("Selamat datang di Halorumah!"))
-        //     );
+        if (result.data.data.phone != '') {
+          const row = new MessageActionRow()
+            .addComponents(
+              new MessageButton()
+                .setLabel('Say Welcome to New Member')
+                .setStyle('LINK').setURL('https://wa.me/' + result.data.data.phone + "/" + encodeURIComponent("Selamat datang di Halorumah!"))
+            );
 
-        //   payload['components'] = [row]
-        // }
+          payload['components'] = [row]
+        }
         try {
-          interaction.reply(payload)
+          intr.reply(payload)
         } catch (error) {
           console.log(error)
         }
@@ -192,7 +192,7 @@ client.on('interactionCreate', interaction => {
           content: 'Gagal mengaktifkan paket!'
         }
         try {
-          interaction.reply(payload)
+          intr.reply(payload)
         } catch (error) {
           console.log(error)
         }
