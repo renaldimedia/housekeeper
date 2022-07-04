@@ -149,8 +149,9 @@ async function goto(method, url, data, interaction = false) {
 client.on('interactionCreate', interaction => {
   if (!interaction.isButton()) return;
   let ids = interaction.customId.split("-");
-
+ 
   if (ids[0] == 'activatepayment') {
+    interaction.reply("Mohon tunggu...")
     // let data = new FormData();
     // data.append('item_id', ids[2])
     // data.append('invoice_id', ids[1])
@@ -180,7 +181,8 @@ client.on('interactionCreate', interaction => {
           payload['components'] = [row]
         }
         try {
-          intr.reply(payload)
+          interaction.followUp(payload)
+          // intr(payload)
         } catch (error) {
           console.log(error)
         }
@@ -192,7 +194,8 @@ client.on('interactionCreate', interaction => {
           content: 'Gagal mengaktifkan paket!'
         }
         try {
-          intr.reply(payload)
+          interaction.followUp(payload)
+          // intr.reply(payload)
         } catch (error) {
           console.log(error)
         }
