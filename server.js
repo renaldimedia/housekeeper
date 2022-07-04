@@ -13,15 +13,10 @@ const allRoles = async function (bot) {
 }
 
 async function getMember(bot, res) {
-
   const list = bot.guilds.cache.get(cfg.discord.serverKey)
-
   if (typeof list !== 'undefined') {
-
     const members = await list.members.fetch()
-
     let result = { data: [] };
-
     members.each((member) => {
       result.data.push(member);
     })
@@ -97,22 +92,16 @@ const createServer = cl => {
   });
 
   app.post("/payment/midtrans", (req, res) => {
-    // console.log(req.body);
     var payment = req.body;
     var messages = "Payment";
     if (payment.transaction_status == 'settlement') {
       messages = `Payment Invoice ${payment.order_id} sudah lunas pada ${payment.transaction_time}!`
     }
-    // else if (payment.transaction_status == 'pending') {
-    //   messages = `Ada pesanan masuk dengan invoice ${payment.orderid} oleh ${payment.customer.email}, segera followup!`
-    // }
     sendToRole(cl, "payment", res, messages)
-
-    // res.json({ requestBody: membersWithRole });
   });
 
   app.post("/payment/xendit", (req, res) => {
-    // console.log(req.body);
+    
     var payment = req.body;
     var messages = "Payment";
     messages = `Ada pesanan masuk dengan invoice ${payment.external_id} oleh ${payment.payer_email}, segera followup!`
@@ -120,8 +109,6 @@ const createServer = cl => {
       messages = `Payment Invoice ${payment.external_id} sudah lunas pada ${payment.paid_at}!`
     }
     sendToRole(cl, "payment", res, messages)
-
-    // res.json({ requestBody: membersWithRole });
   });
 
   app.post("/payment/manual", (req, res) => {
@@ -134,11 +121,8 @@ const createServer = cl => {
       btnlabel: "Aktivasi paket"
     }
     messages = `Ada pesanan masuk dengan invoice ${payment.invoice_id} oleh ${payment.user_email}, segera followup!`
-
     sendToRole(cl, "payment", res, messages, additional)
-
   });
-
 
   return app
 }
@@ -152,7 +136,11 @@ const client = new Client({ intents: myIntents })
 
 async function goto(method, url, data, interaction = false) {
   // const users = 
-  const result = await cfg.web.request.post(url, data);
+  const result = await cfg.web.request.post(url, data, {
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  });
 
   let res = {
     result: result,
