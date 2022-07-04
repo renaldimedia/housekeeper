@@ -47,7 +47,7 @@ async function sendToRole(cl, role, res, payload) {
         if (typeof ada !== 'undefined') {
           console.log('sending now!')
           client.users.cache.get(member.user.id).send(payload)
-          console.log(msg)
+          console.log(payload.content)
         }
       })
       console.log('berhasil loop member')
