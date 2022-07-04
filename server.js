@@ -1,6 +1,6 @@
 // import createServer from "./createServer.js"
 import express from "express"
-import { Client, Intents, MessageActionRow, MessageButton } from "discord.js"
+import { Client, Intents, MessageActionRow, MessageButton, MessageEmbed } from "discord.js"
 import { default as FormData } from "form-data"
 import cfg from "./config.js"
 
@@ -28,7 +28,7 @@ async function getMember(bot, res) {
 }
 
 
-async function sendToRole(cl, role, res, msg = '', additional = false) {
+async function sendToRole(cl, role, res, payload) {
   // console.log(additional)
   try {
     // console.log('will send now to role : ' + cfg.discord.serverKey)
@@ -46,21 +46,8 @@ async function sendToRole(cl, role, res, msg = '', additional = false) {
         let ada = member.roles.cache.get(roleid);
         if (typeof ada !== 'undefined') {
           console.log('sending now!')
-          if (additional && additional.button == true && cfg.interaction.activatePackage == 1) {
-            const row = new MessageActionRow()
-              .addComponents(
-                new MessageButton()
-                  .setCustomId(additional.customid)
-                  .setLabel(additional.btnlabel)
-                  .setStyle(additional.style),
-              );
-            // cmp.push(row)
-            client.users.cache.get(member.user.id).send({ content: msg, components: [row] })
-            console.log(msg)
-          } else {
-            client.users.cache.get(member.user.id).send({ content: msg })
-            console.log(msg)
-          }
+          client.users.cache.get(member.user.id).send(payload)
+          console.log(msg)
         }
       })
       console.log('berhasil loop member')
@@ -88,7 +75,8 @@ const createServer = cl => {
   })
 
   app.get("/", (_, res) => {
-    sendToRole(cl, 'payment', res)
+    // sendToRole(cl, 'payment', res, {content: ""})
+    res.send("404");
   });
 
   app.post("/payment/midtrans", (req, res) => {
@@ -97,35 +85,54 @@ const createServer = cl => {
     if (payment.transaction_status == 'settlement') {
       messages = `Payment Invoice ${payment.order_id} sudah lunas pada ${payment.transaction_time}!`
     }
-    sendToRole(cl, "payment", res, messages)
+    sendToRole(cl, "payment", res, {content: messages})
   });
 
   app.post("/payment/xendit", (req, res) => {
-    
+
     var payment = req.body;
     var messages = "Payment";
     messages = `Ada pesanan masuk dengan invoice ${payment.external_id} oleh ${payment.payer_email}, segera followup!`
     if (payment.status.toLowerCase() == 'paid') {
       messages = `Payment Invoice ${payment.external_id} sudah lunas pada ${payment.paid_at}!`
     }
-    sendToRole(cl, "payment", res, messages)
+    sendToRole(cl, "payment", res, {content: messages})
   });
 
   app.post("/payment/manual", (req, res) => {
     var payment = req.body;
     var messages = "Payment";
-    let additional = {
-      button: true,
-      style: 'PRIMARY',
-      customid: 'activatepayment-' + payment.invoice_id + "-" + payment.item_id,
-      btnlabel: "Aktivasi paket"
-    }
+    const row = new MessageActionRow()
+              .addComponents(
+                new MessageButton()
+                  .setCustomId('activatepayment-' + payment.invoice_id + "-" + payment.item_id)
+                  .setLabel("Aktivasi paket")
+                  .setStyle('PRIMARY'),
+              );
     messages = `Ada pesanan masuk dengan invoice ${payment.invoice_id} oleh ${payment.user_email}, segera followup!`
-    sendToRole(cl, "payment", res, messages, additional)
+    sendToRole(cl, "payment", res, {content: messages, components: [row]})
   });
 
   app.get("/payment/report", (__, res) => {
-    sendToRole(cl, 'dev', res, "Boooo");
+    const exampleEmbed = new MessageEmbed()
+      .setColor('#0099ff')
+      .setTitle('Some title')
+      .setURL('https://discord.js.org/')
+      .setAuthor({ name: 'Some name', iconURL: 'https://i.imgur.com/AfFp7pu.png', url: 'https://discord.js.org' })
+      .setDescription('Some description here')
+      .setThumbnail('https://i.imgur.com/AfFp7pu.png')
+      .addFields(
+        { name: 'Regular field title', value: 'Some value here' },
+        { name: '\u200B', value: '\u200B' },
+        { name: 'Inline field title', value: 'Some value here', inline: true },
+        { name: 'Inline field title', value: 'Some value here', inline: true },
+      )
+      .addField('Inline field title', 'Some value here', true)
+      .setImage('https://i.imgur.com/AfFp7pu.png')
+      .setTimestamp()
+      .setFooter({ text: 'Some footer text here', iconURL: 'https://i.imgur.com/AfFp7pu.png' });
+
+    sendToRole(cl, 'dev', res, {content:"Boo", embeds: [exampleEmbed]});
   });
 
   return app
@@ -153,7 +160,7 @@ async function goto(method, url, data, interaction = false) {
 client.on('interactionCreate', interaction => {
   if (!interaction.isButton()) return;
   let ids = interaction.customId.split("-");
- 
+
   if (ids[0] == 'activatepayment') {
     interaction.reply("Mohon tunggu...")
     // let data = new FormData();
@@ -173,7 +180,7 @@ client.on('interactionCreate', interaction => {
         let payload = {
           content: 'Berhasil mengaktifkan paket!'
         }
-       
+
         if (result.data.data.phone != '') {
           const row = new MessageActionRow()
             .addComponents(
@@ -190,9 +197,9 @@ client.on('interactionCreate', interaction => {
         } catch (error) {
           console.log(error)
         }
-        
-      }else{
-        
+
+      } else {
+
 
         let payload = {
           content: 'Gagal mengaktifkan paket!'
