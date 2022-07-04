@@ -180,16 +180,23 @@ client.on('interactionCreate', interaction => {
 
           payload['components'] = [row]
         }
-      
-        interaction.reply(payload)
+        try {
+          interaction.reply(payload)
+        } catch (error) {
+          console.log(error)
+        }
+        
       }else{
         
 
         let payload = {
           content: 'Gagal mengaktifkan paket!'
         }
-        interaction.reply(payload)
-        console.log(res.result)
+        try {
+          interaction.reply(payload)
+        } catch (error) {
+          console.log(error)
+        }
       }
     })
 
