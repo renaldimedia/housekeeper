@@ -170,25 +170,27 @@ client.on('interactionCreate', interaction => {
       invoice_id: ids[1]
     }
     goto('POST', "/wp-json/houzez/v1/payment/activate", data).then(result => {
-      console.log(result)
-      console.log(result.data)
-      console.log(result.data.message)
+      // console.log(result)
+      // console.log(result.data)
+      // console.log(result.data.message)
       if (typeof result.data != 'undefined' && typeof result.data.message == 'string' && result.data.message == 'success') {
         let payload = {
           content: 'Berhasil mengaktifkan paket!'
         }
-
+       
         if (result.data.data.phone != '') {
           const row = new MessageActionRow()
             .addComponents(
               new MessageButton()
                 .setLabel('Say Welcome to New Member')
-                .setStyle('LINK').setURL('https://wa.me/' + result.data.data.phone)
+                .setStyle('LINK').setURL('https://wa.me/' + result.data.data.phone + "/" + encodeURIComponent("Selamat datang di Halorumah!"))
             );
 
           payload['components'] = [row]
         }
-        client.users.cache.get(interaction.user.id).send(payload)
+        interaction.reply(payload)
+        // interaction.deleteReply()
+        // client.users.cache.get(interaction.user.id).send(payload)
       }
     })
 
