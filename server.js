@@ -163,6 +163,8 @@ client.on('interactionCreate', interaction => {
       // console.log(result.data.message)
       let result = res.result
       // let intr = res.interaction
+      console.log(result.data)
+      console.log(interaction)
       if (typeof result.data != 'undefined' && typeof result.data.message == 'string' && result.data.message == 'success') {
         let payload = {
           content: 'Berhasil mengaktifkan paket!'
@@ -178,17 +180,15 @@ client.on('interactionCreate', interaction => {
 
           payload['components'] = [row]
         }
-        interaction.deferReply();
-        interaction.editReply(payload);
-        // interaction.reply(payload)
+      
+        interaction.reply(payload)
       }else{
         
 
         let payload = {
           content: 'Gagal mengaktifkan paket!'
         }
-        interaction.deferReply();
-        interaction.editReply(payload);
+        interaction.reply(payload)
         console.log(res.result)
       }
     })
