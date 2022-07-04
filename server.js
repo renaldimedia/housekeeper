@@ -158,11 +158,11 @@ client.on('interactionCreate', interaction => {
       item_id: ids[2],
       invoice_id: ids[1]
     })
-    goto('POST', "/wp-json/houzez/v1/payment/activate", data, interaction).then(res => {
+    goto('POST', "/wp-json/houzez/v1/payment/activate", data).then(res => {
       // console.log(result.data)
       // console.log(result.data.message)
       let result = res.result
-      let intr = res.interaction
+      // let intr = res.interaction
       if (typeof result.data != 'undefined' && typeof result.data.message == 'string' && result.data.message == 'success') {
         let payload = {
           content: 'Berhasil mengaktifkan paket!'
@@ -178,16 +178,17 @@ client.on('interactionCreate', interaction => {
 
           payload['components'] = [row]
         }
-        intr.reply(payload)
-        // interaction.deleteReply()
-        // client.users.cache.get(interaction.user.id).send(payload)
+        interaction.deferReply();
+        interaction.editReply(payload);
+        // interaction.reply(payload)
       }else{
         
 
         let payload = {
           content: 'Gagal mengaktifkan paket!'
         }
-        intr.reply(payload)
+        interaction.deferReply();
+        interaction.editReply(payload);
         console.log(res.result)
       }
     })
